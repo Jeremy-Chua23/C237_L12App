@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <title>Edit Park</title>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+  <div class="container mt-4">
+    <h1>Edit Park</h1>
+    <p class="text-muted">Update the park details and save your changes.</p>
+
+    <form action="/editPark/<%= index %>" method="POST" onsubmit="return validateParkType()">
+      <div class="mb-3">
+        <label class="form-label" for="name">Park Name</label>
+        <input class="form-control" type="text" id="name" name="name" value="<%= park.name %>" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="location">Location</label>
+        <input class="form-control" type="text" id="location" name="location" value="<%= park.location %>" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="contacts">Contacts</label>
+        <input class="form-control" type="text" id="contacts" name="contacts" value="<%= park.contacts %>" placeholder="Phone, email or website" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="description">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3" required><%= park.description %></textarea>
+      </div>
+
+      <% const defaultFeatures = [
+        'Recreation',
+        'Biodiversity',
+        'Easy trails',
+        'Disabled friendly',
+        'Playground',
+        'Dog friendly',
+        'Picnic areas',
+        'Water features',
+        'Educational signage',
+        'Wildlife viewing'
+      ];
+      const customFeatures = [park.feat1, park.feat2, park.feat3].filter(Boolean);
+      const featureOptions = Array.from(new Set([...defaultFeatures, ...customFeatures]));
+      %>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label" for="feature1">Feature 1</label>
+          <select class="form-select" id="feature1" name="feat1" required onchange="onFeatureChange()">
+            <option value="">-- Select a feature --</option>
+            <% featureOptions.forEach((feature) => { %>
+              <option value="<%= feature %>" <%= park.feat1 === feature ? 'selected' : '' %>><%= feature %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="feature2">Feature 2</label>
+          <select class="form-select" id="feature2" name="feat2" onchange="onFeatureChange()">
+            <option value="">-- Optional --</option>
+            <% featureOptions.forEach((feature) => { %>
+              <option value="<%= feature %>" <%= park.feat2 === feature ? 'selected' : '' %>><%= feature %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="feature3">Feature 3</label>
+          <select class="form-select" id="feature3" name="feat3" onchange="onFeatureChange()">
+            <option value="">-- Optional --</option>
+            <% featureOptions.forEach((feature) => { %>
+              <option value="<%= feature %>" <%= park.feat3 === feature ? 'selected' : '' %>><%= feature %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <% const isOtherParkType = park.parkType && !['Nature Reserve', 'Nature Park', 'Urban Park'].includes(park.parkType); %>
+      <div class="mb-3">
+        <label class="form-label">Park type</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="parkType" id="parkTypeReserve" value="Nature Reserve" <%= park.parkType === 'Nature Reserve' ? 'checked' : '' %> required>
+          <label class="form-check-label" for="parkTypeReserve">Nature Reserves: Highly biodiverse, not for recreation.</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="parkType" id="parkTypeNature" value="Nature Park" <%= park.parkType === 'Nature Park' ? 'checked' : '' %>>
+          <label class="form-check-label" for="parkTypeNature">Nature Parks: Some recreation allowed with moderate biodiversity.</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="parkType" id="parkTypeUrban" value="Urban Park" <%= park.parkType === 'Urban Park' ? 'checked' : '' %>>
+          <label class="form-check-label" for="parkTypeUrban">Urban Parks: Recreational focus with less wildlife emphasis.</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="parkType" id="parkTypeOther" value="Other" <%= isOtherParkType ? 'checked' : '' %>>
+          <label class="form-check-label" for="parkTypeOther">Other (please specify)</label>
+          <input class="form-control mt-2" type="text" id="otherParkType" name="otherParkType" placeholder="Enter custom park type" value="<%= isOtherParkType ? park.parkType : '' %>" style="display:<%= isOtherParkType ? 'block' : 'none' %>;" <%= isOtherParkType ? 'required' : '' %> />
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-success" type="submit">Submit</button>
+        <a class="btn btn-secondary" href="/viewParks">Back</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function onFeatureChange() {
+      const selects = [document.getElementById('feature1'), document.getElementById('feature2'), document.getElementById('feature3')];
+      const selected = selects.map(s => s.value).filter(Boolean);
+      selects.forEach(s => Array.from(s.options).forEach(opt => opt.disabled = false));
+      selected.forEach((val, idx) => {
+        selects.forEach((s, sIdx) => {
+          if (sIdx !== idx) {
+            Array.from(s.options).forEach(opt => {
+              if (opt.value === val) opt.disabled = true;
+            });
+          }
+        });
+      });
+    }
+
+    function refreshOtherParkType() {
+      const otherRadio = document.getElementById('parkTypeOther');
+      const otherInput = document.getElementById('otherParkType');
+      if (otherRadio.checked) {
+        otherInput.style.display = 'block';
+        otherInput.required = true;
+      } else {
+        otherInput.style.display = 'none';
+        otherInput.required = false;
+      }
+    }
+
+    function validateParkType() {
+      const otherRadio = document.getElementById('parkTypeOther');
+      const otherInput = document.getElementById('otherParkType');
+      if (otherRadio.checked && !otherInput.value.trim()) {
+        alert('Please enter a custom park type for "Other".');
+        otherInput.focus();
+        return false;
+      }
+      return true;
+    }
+
+    document.querySelectorAll('input[name="parkType"]').forEach(radio => radio.addEventListener('change', refreshOtherParkType));
+    document.addEventListener('DOMContentLoaded', () => {
+      onFeatureChange();
+      refreshOtherParkType();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create Park Set</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:24px}
+    .container{max-width:900px;margin:0 auto}
+    .description{color:#333;margin-bottom:18px}
+    label{display:block;margin:12px 0 6px}
+    .type-item{margin:8px 0}
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+  <div class="container mt-4">
+    <h1>Create a park search set</h1>
+    <p class="description muted">Choose the features and park type for the set. This does not add a new park.</p>
+
+    <form action="/addPark" method="POST">
+      <div class="row">
+        <div class="col">
+          <label for="feature1">Feature 1 (required)</label>
+          <select id="feature1" name="feat1" required onchange="onFeatureChange()">
+            <option value="">-- Select a feature --</option>
+            <option>Recreation</option>
+            <option>Biodiversity</option>
+            <option>Easy trails</option>
+            <option>Disabled friendly</option>
+            <option>Playground</option>
+            <option>Dog friendly</option>
+            <option>Picnic areas</option>
+            <option>Water features</option>
+            <option>Educational signage</option>
+            <option>Wildlife viewing</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="feature2">Feature 2 (optional)</label>
+          <select id="feature2" name="feat2" onchange="onFeatureChange()">
+            <option value="">-- Optional --</option>
+            <option>Recreation</option>
+            <option>Biodiversity</option>
+            <option>Easy trails</option>
+            <option>Disabled friendly</option>
+            <option>Playground</option>
+            <option>Dog friendly</option>
+            <option>Picnic areas</option>
+            <option>Water features</option>
+            <option>Educational signage</option>
+            <option>Wildlife viewing</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="feature3">Feature 3 (optional)</label>
+          <select id="feature3" name="feat3" onchange="onFeatureChange()">
+            <option value="">-- Optional --</option>
+            <option>Recreation</option>
+            <option>Biodiversity</option>
+            <option>Easy trails</option>
+            <option>Disabled friendly</option>
+            <option>Playground</option>
+            <option>Dog friendly</option>
+            <option>Picnic areas</option>
+            <option>Water features</option>
+            <option>Educational signage</option>
+            <option>Wildlife viewing</option>
+          </select>
+        </div>
+      </div>
+
+      <hr style="margin:18px 0">
+
+      <h2>What kind of park are you looking for?</h2>
+      <p class="muted small">Select one of the types below or choose "Other" and provide your own.</p>
+
+      <div class="types">
+        <div class="type-item">
+          <label><input type="radio" name="parkType" value="Nature Reserve" required> <strong>Nature Reserves:</strong> Highly biodiverse with a strong focus on native flora and fauna. Not for recreation.</label>
+        </div>
+        <div class="type-item">
+          <label><input type="radio" name="parkType" value="Nature Park"> <strong>Nature Parks:</strong> Buffer parks for Nature Reserves, with a fraction of biodiversity and some recreational activities allowed.</label>
+        </div>
+        <div class="type-item">
+          <label><input type="radio" name="parkType" value="Urban Park"> <strong>Urban Parks:</strong> For recreational purposes; fewer wildlife concerns.</label>
+        </div>
+        <div class="type-item">
+          <label><input type="radio" name="parkType" value="Other" id="parkTypeOther"> Other (please specify)</label>
+          <input type="text" id="otherParkType" name="otherParkType" placeholder="Enter custom park type" style="margin-top:6px;display:none">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">Create set</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function onFeatureChange(){
+      const selects = [
+        document.getElementById('feature1'),
+        document.getElementById('feature2'),
+        document.getElementById('feature3')
+      ];
+
+      const selected = selects.map(s => s.value).filter(v => v && v !== '');
+      selects.forEach(s => Array.from(s.options).forEach(opt => opt.disabled = false));
+      selected.forEach((val, idx) => {
+        selects.forEach((s, sIdx) => {
+          if(sIdx !== idx){
+            Array.from(s.options).forEach(opt => {
+              if(opt.value === val) opt.disabled = true;
+            });
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll('input[name="parkType"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const otherInput = document.getElementById('otherParkType');
+        if(document.getElementById('parkTypeOther').checked){
+          otherInput.style.display = 'block';
+          otherInput.required = true;
+        } else {
+          otherInput.style.display = 'none';
+          otherInput.required = false;
+        }
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      onFeatureChange();
+    });
+  </script>
+</body>
+</html>
